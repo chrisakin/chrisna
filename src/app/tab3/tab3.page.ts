@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { CameraOptions, Camera} from "@ionic-native/camera/ngx"
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-tab3',
@@ -9,12 +12,16 @@ import { CameraOptions, Camera} from "@ionic-native/camera/ngx"
 })
 export class Tab3Page {
   myProfileImage;
+  myStoredProfileImage: Observable<any>;
+
 
   constructor(private alertController: AlertController,
-    private camera: Camera) {}
+    private camera: Camera,
+    private angularFireStore: AngularFirestore,
+    private angularFireAuth: AngularFireAuth) {}
 
   async selectImageSource(){
-    // select image from gallery and camera
+    // select image from gallery and camera 
     const cameraOptions: CameraOptions = {
       // camera options on how the image should be
       quality: 100, // the image quality from 0 to 100
@@ -48,7 +55,13 @@ export class Tab3Page {
           handler: ()=> {
             this.camera.getPicture(cameraOptions)
             .then((imageData) => {
-              this.myProfileImage = "data:image/jpeg;base64," + imageData;
+             // this.myProfileImage = "data:image/jpeg;base64," + imageData;
+             const image = "data:image/jpeg;base64," + imageData; 
+             this.angularFireStore.collection("users")
+             .doc(this.angularFireAuth.currentUser.uid)
+              .set({
+               image_src: image
+             })
             })
           }
         },
@@ -57,7 +70,13 @@ export class Tab3Page {
           handler: ()=> {
             this.camera.getPicture(galleryOptions)
             .then((imageData) => {
-              this.myProfileImage = "data:image/jpeg;base64," + imageData;
+        // this.myProfileImage = "data:image/jpeg;base64," + imageData;
+        const image = "data:image/jpeg;base64," + imageData; 
+        this.angularFireStore.collection("users")
+       //  .doc(this.angularFireAuth.currentUser)
+        // .set({
+        //   image_src: image
+       //  })
             })
           }
         }
